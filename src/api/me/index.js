@@ -1,5 +1,5 @@
 import express from "express";
-import basicAuthentication from "../lib/auth/basicAuth.js";
+// import basicAuthentication from "../lib/auth/basicAuth.js";
 import BlogPostModel from "../blogPosts/model.js";
 import meOnlyMiddleware from "../lib/auth/meOnly.js";
 import { JWTAuthorization } from "../lib/auth/jwtAuth.js";
