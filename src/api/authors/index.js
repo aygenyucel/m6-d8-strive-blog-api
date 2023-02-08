@@ -182,4 +182,22 @@ authorsRouter.post("/login", async (req, res, next) => {
   }
 });
 
+authorsRouter.post("/register", async (req, res, next) => {
+  try {
+    const author = req.body;
+    const email = await AuthorsModel.checkEmail(author.email);
+    if (email) {
+      next(createHttpError(409, "Author with that email already exist!"));
+    } else {
+      const newAuthor = new AuthorsModel(author);
+      const { _id } = await newAuthor.save();
+      const payload = { _id };
+      const accessToken = await createAccessToken(payload);
+      res.status(201).send({ accessToken });
+    }
+  } catch (error) {
+    next(error);
+  }
+});
+
 export default authorsRouter;

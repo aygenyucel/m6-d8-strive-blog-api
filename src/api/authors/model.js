@@ -60,4 +60,13 @@ authorsSchema.static("checkCredentials", async function (email, password) {
   }
 });
 
+authorsSchema.static("checkEmail", async function (email) {
+  const author = await this.findOne({ email });
+  if (author) {
+    return email;
+  } else {
+    return null;
+  }
+});
+
 export default model("Author", authorsSchema);
