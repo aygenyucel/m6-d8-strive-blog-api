@@ -1,17 +1,12 @@
 import express from "express"; // 3RD PARTY MODULE (npm i express)
-import fs from "fs"; //CORE MODULE
-import { fileURLToPath } from "url"; // CORE MODULE
-import { dirname, join } from "path"; //CORE MODULE
-
-import uniqid from "uniqid"; // 3RD PARTY MODULE (npm i uniqid)
-import { authorsJSONPath } from "../lib/fs-tools.js";
 import createHttpError from "http-errors";
 import AuthorsModel from "./model.js";
 import { createAccessToken } from "../lib/jwt-tools.js";
+import { JWTAuthorization } from "../lib/auth/jwtAuth.js";
 
 const authorsRouter = express.Router();
 
-authorsRouter.post("/", async (req, res, next) => {
+authorsRouter.post("/", JWTAuthorization, async (req, res, next) => {
   try {
     const newAuthor = new AuthorsModel(req.body);
     const { _id } = await newAuthor.save();
@@ -21,7 +16,7 @@ authorsRouter.post("/", async (req, res, next) => {
   }
 });
 
-authorsRouter.get("/", async (req, res, next) => {
+authorsRouter.get("/", JWTAuthorization, async (req, res, next) => {
   try {
     const authors = await AuthorsModel.find();
     res.send(authors);
@@ -30,7 +25,7 @@ authorsRouter.get("/", async (req, res, next) => {
   }
 });
 
-authorsRouter.get("/:authorId", async (req, res, next) => {
+authorsRouter.get("/:authorId", JWTAuthorization, async (req, res, next) => {
   try {
     const author = await AuthorsModel.findById(req.params.authorId);
 
@@ -46,7 +41,7 @@ authorsRouter.get("/:authorId", async (req, res, next) => {
   }
 });
 
-authorsRouter.put("/:authorId", async (req, res, next) => {
+authorsRouter.put("/:authorId", JWTAuthorization, async (req, res, next) => {
   const author = await AuthorsModel.findByIdAndUpdate(
     req.params.authorId,
     { ...req.body },
@@ -64,7 +59,7 @@ authorsRouter.put("/:authorId", async (req, res, next) => {
   }
 });
 
-authorsRouter.delete("/:authorId", async (req, res, next) => {
+authorsRouter.delete("/:authorId", JWTAuthorization, async (req, res, next) => {
   try {
     const deletedAuthor = await AuthorsModel.findByIdAndDelete(
       req.params.authorId
@@ -82,7 +77,7 @@ authorsRouter.delete("/:authorId", async (req, res, next) => {
   }
 });
 
-authorsRouter.post("/login", async (req, res, next) => {
+authorsRouter.post("/login", JWTAuthorization, async (req, res, next) => {
   try {
     const { email, password } = req.body;
     const author = await AuthorsModel.checkCredentials(email, password);
@@ -101,7 +96,7 @@ authorsRouter.post("/login", async (req, res, next) => {
   }
 });
 
-authorsRouter.post("/register", async (req, res, next) => {
+authorsRouter.post("/register", JWTAuthorization, async (req, res, next) => {
   try {
     const author = req.body;
     const email = await AuthorsModel.checkEmail(author.email);
