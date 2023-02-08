@@ -15,6 +15,7 @@ import uniqid from "uniqid"; // 3RD PARTY MODULE (npm i uniqid)
 import { authorsJSONPath } from "../lib/fs-tools.js";
 import createHttpError from "http-errors";
 import AuthorsModel from "./model.js";
+import { createAccessToken } from "../lib/jwt-tools.js";
 
 const authorsRouter = express.Router();
 
@@ -156,6 +157,25 @@ authorsRouter.delete("/:authorId", async (req, res, next) => {
       next(
         createHttpError(404, `Author with id ${req.params.authorId} not found!`)
       );
+    }
+  } catch (error) {
+    next(error);
+  }
+});
+
+authorsRouter.post("/login", async (req, res, next) => {
+  try {
+    const { email, password } = req.body;
+    const author = await AuthorsModel.checkCredentials(email, password);
+    console.log("author", author);
+    if (author) {
+      const payload = { _id: author._id, role: author.role };
+
+      const accessToken = await createAccessToken(payload);
+
+      res.send({ accessToken });
+    } else {
+      next(createHttpError(401, "Credentials are not ok!"));
     }
   } catch (error) {
     next(error);
